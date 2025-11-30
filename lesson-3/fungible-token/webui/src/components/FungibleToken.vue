@@ -11,12 +11,13 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { computed, onMounted, ref } from 'vue'
+import { Subscription } from 'src/subscription'
 
 const chain1Balance = ref('0')
 const chain2Balance = ref('0')
 
 const defaultChain = ref('')
-const chains = ref([])
+const chains = ref([] as string[])
 const faucetChain = ref('8fd4233c5d03554f87d47a711cf70619727ca3d148353446cab81fb56922c9b7')
 const _applicationId = ref('')
 
@@ -38,7 +39,21 @@ const getChains = async () => {
   })
   const data = (resp.data as Record<string, unknown>).data
   defaultChain.value =  ((data as Record<string, string>).chains as unknown as Record<string, string>).default as string
-  chains.value = (((data as Record<string, string>).chains as unknown as Record<string, string>).list as unknown as []).filter((el) => el !== faucetChain.value)
+  chains.value = (((data as Record<string, string>).chains as unknown as Record<string, string>).list as unknown as []).filter((el) => el !== faucetChain.value) as string[]
+
+  const wsUrl = 'ws://192.168.31.182:8080/ws'
+  new Subscription(url, wsUrl, chains.value[0] as string, (hash: string) => {
+    console.log(`NewBlock ${hash} on chain ${chains.value[0]}`)
+    myBalance(chain1Url.value).then((balance) => {
+      chain1Balance.value = balance
+    })
+  })
+  new Subscription(url, wsUrl, chains.value[1] as string, (hash: string) => {
+    console.log(`NewBlock ${hash} on chain ${chains.value[1]}`)
+    myBalance(chain2Url.value).then((balance) => {
+      chain2Balance.value = balance
+    })
+  })
 }
 
 const applicationId = async () => {
