@@ -54,14 +54,14 @@ const applicationId = async () => {
 
 const onMintClick = async () => {
   await axios.post(chain1Url.value, {
-    'query': 'query: { mint(amount: "1.23454") }'
+    'query': 'mutation { mint(amount: "1.23454") }'
   })
   chain1Balance.value = await myBalance(chain1Url.value)
 }
 
 const onTransferClick = async () => {
   await axios.post(chain1Url.value, {
-    'query': `mutation { transfer(to: "${chains.value[0]}", amount: "1.234253") }`
+    'query': `mutation { transfer(to: "${chains.value[1]}", amount: "1.234253") }`
   })
 
   chain1Balance.value = await myBalance(chain1Url.value)
