@@ -46,12 +46,16 @@ const getChains = async () => {
     console.log(`NewBlock ${hash} on chain ${chains.value[0]}`)
     myBalance(chain1Url.value).then((balance) => {
       chain1Balance.value = balance
+    }).catch((e) => {
+      console.log('Error', e)
     })
   })
   new Subscription(url, wsUrl, chains.value[1] as string, (hash: string) => {
     console.log(`NewBlock ${hash} on chain ${chains.value[1]}`)
     myBalance(chain2Url.value).then((balance) => {
       chain2Balance.value = balance
+    }).catch((e) => {
+      console.log('Error', e)
     })
   })
 }
