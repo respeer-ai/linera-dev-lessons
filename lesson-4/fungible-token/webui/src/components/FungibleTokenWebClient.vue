@@ -69,7 +69,7 @@ const initializeWallet = async () => {
 
   client.onNotification((notification: Record<string, Record<string, unknown>>) => {
     console.log(notification)
-  });
+  })
 }
 
 onMounted(async () => {
