@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
+import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
 import { Subscription } from 'src/subscription'
 import * as linera from '@linera/client'
@@ -116,8 +116,7 @@ const initializeWallet = async (onNewBlock: (hash: string) => void) => {
   return {
     owner,
     chain,
-    application,
-    balanceTimeout: -1
+    application
   }
 }
 
