@@ -1,7 +1,7 @@
 use async_graphql::{Request, Response};
 use linera_sdk::{
     graphql::GraphQLMutationRoot,
-    linera_base_types::{Amount, ArithmeticError, ContractAbi, ServiceAbi, ChainId},
+    linera_base_types::{Amount, ArithmeticError, ChainId, ContractAbi, ServiceAbi},
     views::ViewError,
 };
 use num_bigint::BigUint;

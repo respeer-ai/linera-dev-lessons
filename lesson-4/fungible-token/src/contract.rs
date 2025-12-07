@@ -3,12 +3,12 @@
 mod state;
 
 use linera_sdk::{
-    linera_base_types::{WithContractAbi, ChainId},
+    linera_base_types::{ChainId, WithContractAbi},
     views::{RootView, View},
     Contract, ContractRuntime,
 };
 
-use fungible_token::{InstantiationArgument, Operation, Message};
+use fungible_token::{InstantiationArgument, Message, Operation};
 
 use self::state::FungibleTokenState;
 
@@ -54,7 +54,9 @@ impl Contract for FungibleTokenContract {
                     .transfer(amount)
                     .await
                     .expect("Failed OP: transfer");
-                self.send_message(to, Message::Transferred {amount});
+                let chain_id = self.runtime.chain_id();
+                log::info!("Transferred {} -> {}", chain_id, to);
+                self.send_message(to, Message::Transferred { amount });
             }
         }
     }
@@ -64,7 +66,12 @@ impl Contract for FungibleTokenContract {
             Message::Mint { amount } => {
                 let target_amount = self.state.mint(amount).await.expect("Failed MSG: mint");
                 let message_origin_chain_id = self.runtime.message_origin_chain_id().unwrap();
-                self.send_message(message_origin_chain_id, Message::Minted { amount: target_amount });
+                self.send_message(
+                    message_origin_chain_id,
+                    Message::Minted {
+                        amount: target_amount,
+                    },
+                );
             }
             Message::Minted { amount } => {
                 self.state
@@ -73,6 +80,9 @@ impl Contract for FungibleTokenContract {
                     .expect("Failed MSG: minted");
             }
             Message::Transferred { amount } => {
+                let message_origin_chain_id = self.runtime.message_origin_chain_id().unwrap();
+                let chain_id = self.runtime.chain_id();
+                log::info!("Received {} -> {}", message_origin_chain_id, chain_id);
                 self.state
                     .received(amount)
                     .await

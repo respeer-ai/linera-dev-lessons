@@ -48,6 +48,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "allocative"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8fac2ce611db8b8cee9b2aa886ca03c924e9da5e5295d0dbd0526e5d0b0710f7"
+dependencies = [
+ "allocative_derive",
+ "ctor",
+]
+
+[[package]]
+name = "allocative_derive"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fe233a377643e0fc1a56421d7c90acdec45c291b30345eb9f08e8d0ddce5a4ab"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.109",
+]
+
+[[package]]
 name = "allocator-api2"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -835,6 +856,16 @@ checksum = "1bfb12502f3fc46cca1bb51ac28df9d618d813cdc3d2f25b9fe775a34af26bb3"
 dependencies = [
  "generic-array",
  "typenum",
+]
+
+[[package]]
+name = "ctor"
+version = "0.1.26"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d2301688392eb071b0bf1a37be05c469d3cc4dbbd95df672fe28ab021e6a096"
+dependencies = [
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -2159,10 +2190,11 @@ checksum = "f9fbbcab51052fe104eb5e5d351cf728d30a5be1fe14d9be8a3b097481fb97de"
 
 [[package]]
 name = "linera-base"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d189b7a332ce1b9f8e582870a4cdc990e1d1621ae1358bb97b16966654dcdef5"
+checksum = "4a820145c17df3c788b4d343b24e043274841c3b0dcf1b518e1b8234dbd75f62"
 dependencies = [
+ "allocative",
  "alloy-primitives",
  "anyhow",
  "async-graphql",
@@ -2196,7 +2228,6 @@ dependencies = [
  "test-strategy",
  "thiserror 1.0.69",
  "tokio",
- "tokio-stream",
  "tokio-util",
  "tracing",
  "tracing-chrome",
@@ -2208,10 +2239,11 @@ dependencies = [
 
 [[package]]
 name = "linera-chain"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aef48e71e81d477168448cec434cfc88a31cf6d6030faa765952a73f0822156d"
+checksum = "b443a694876345f9e2fd33bb031e7342ddfa8d48be7cd0156a8b156d6518869d"
 dependencies = [
+ "allocative",
  "anyhow",
  "async-graphql",
  "axum 0.8.6",
@@ -2234,9 +2266,9 @@ dependencies = [
 
 [[package]]
 name = "linera-core"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fa51ae76c03b66f454636dd2b9589e68f7714e1768dc192c6ceeacb131586d1"
+checksum = "25b97bc0f620b660242cf023f4eee1fc5aaeb5580b4b59b270d44ed05c3f3252"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -2271,14 +2303,16 @@ dependencies = [
  "tracing",
  "trait-set",
  "trait-variant",
+ "web-thread-select",
 ]
 
 [[package]]
 name = "linera-execution"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b8f7e1806ff3106ef03d6ffb6d2f21031c260feee25e295745466fb76d2d224"
+checksum = "9d1b1da00e9e130f53626d99acfd1d0790f8138419a987d6cfb71ed543c860b3"
 dependencies = [
+ "allocative",
  "anyhow",
  "async-graphql",
  "async-trait",
@@ -2310,6 +2344,7 @@ dependencies = [
  "tokio",
  "tracing",
  "url",
+ "web-thread-select",
 ]
 
 [[package]]
@@ -2320,9 +2355,9 @@ checksum = "c9198100e9ce61acd3c714a2e61eb19fc5b8e2178dd645e2d9061e61e6e1feef"
 
 [[package]]
 name = "linera-sdk"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a9471cdb733847ea24779b6998487a5f4f03bd38ca9e06b379d0c20daaa04de"
+checksum = "202f261e6994fa5310b12f6f664640f1432204c52e2a707a4f543496d92b20d2"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -2349,9 +2384,9 @@ dependencies = [
 
 [[package]]
 name = "linera-sdk-derive"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d6989faf90b58a3be7df028e93e2714c837085edf3d877c6ec9706620c1cd8f"
+checksum = "e9f027d5476dc1686272ddb5bddc1eac98a16d6d69d69add1331cf541b0150c3"
 dependencies = [
  "convert_case",
  "proc-macro2",
@@ -2360,9 +2395,9 @@ dependencies = [
 
 [[package]]
 name = "linera-storage"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f38289a564b1b74cd21503a3d3a30063c2eff1701a66435ee7e5ee29a3ff0a4d"
+checksum = "8f1543c5d550292a15a8fa94a01168f9a6fcf3140a673bdebb15396c07b24b43"
 dependencies = [
  "async-trait",
  "bcs",
@@ -2379,13 +2414,14 @@ dependencies = [
  "serde",
  "tokio",
  "tracing",
+ "web-thread-select",
 ]
 
 [[package]]
 name = "linera-storage-service"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdb565dc4ac6023f31e805a77af67e0f096db99e0e1133fd1dc4416dd0e2f74f"
+checksum = "dbee036eef68c57de31b3c37ba7b710192ad78640c7069f70a54dcf88684be69"
 dependencies = [
  "anyhow",
  "async-lock",
@@ -2408,9 +2444,9 @@ dependencies = [
 
 [[package]]
 name = "linera-version"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84565c3e3d713afc6b9858951c39f0bfe397e19855cd728074e3f3ad3ec7c76d"
+checksum = "376630817033f84ac027418ab96335b0f0937c9fbad858806ef2099e3606d4cf"
 dependencies = [
  "anyhow",
  "async-graphql",
@@ -2430,10 +2466,11 @@ dependencies = [
 
 [[package]]
 name = "linera-views"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ba4ebc7c9922e8ae6c7d4f022d47d062898a091e23519983eb281045038d182"
+checksum = "31631d8320eb55612ad67093fa9053dab9a9aae465dfae9e2eca81e7b6648e09"
 dependencies = [
+ "allocative",
  "anyhow",
  "async-graphql",
  "async-lock",
@@ -2444,6 +2481,7 @@ dependencies = [
  "futures",
  "generic-array",
  "hex",
+ "itertools",
  "linera-base",
  "linera-views-derive",
  "linera-witty",
@@ -2466,9 +2504,9 @@ dependencies = [
 
 [[package]]
 name = "linera-views-derive"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31cfa81d33d052c10536b558c9ffe01fc00404b8d449721ef82102e1e31a85f1"
+checksum = "1ee95cbc71a456d02175a4659e1c97136dfe64c73ede1d8ac98f7b701a3c7786"
 dependencies = [
  "cfg_aliases",
  "deluxe",
@@ -2616,9 +2654,9 @@ dependencies = [
 
 [[package]]
 name = "linera-witty"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc4dc4032ab7c948d9b84265ddaed314e25af8fb85867a9e9d699bbeb817e140"
+checksum = "56f8d1dce57dfb9968340966742f346f1bb3b07ea5b08b3eded7dbb150428b91"
 dependencies = [
  "anyhow",
  "cfg_aliases",
@@ -2632,9 +2670,9 @@ dependencies = [
 
 [[package]]
 name = "linera-witty-macros"
-version = "0.15.5"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bbf881ffdff677fb8313050fa77a76d3ee24700a77f8f1a82b003666dbf2a68"
+checksum = "ca18bebd9d7bac4c8111ec2bedbe2108e49035a194644fff58ffe685eefa9e10"
 dependencies = [
  "cfg_aliases",
  "heck 0.4.1",
@@ -4994,6 +5032,26 @@ checksum = "3a1f95c0d03a47f4ae1f7a64643a6bb97465d9b740f0fa8f90ea33915c99a9a1"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "web-thread-select"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "27c3f98861caac815f0aa966995e564b0b2db9abc259700ddee544fbdaf236b3"
+dependencies = [
+ "cfg-if",
+ "web-thread-shim",
+]
+
+[[package]]
+name = "web-thread-shim"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "535507b55b73bb78d37bbc732c8bf8ebbc7b26902ab06fbf356fc3b46ad4b06c"
+dependencies = [
+ "futures",
+ "thiserror 2.0.17",
 ]
 
 [[package]]

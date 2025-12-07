@@ -30,10 +30,7 @@ impl FungibleTokenState {
         self.mint_ratio.set(argument.mint_ratio);
     }
 
-    pub(crate) async fn mint(
-        &mut self,
-        amount: Amount,
-    ) -> Result<Amount, FungibleTokenError> {
+    pub(crate) async fn mint(&mut self, amount: Amount) -> Result<Amount, FungibleTokenError> {
         let target_amount = try_amount_mul(amount, *self.mint_ratio.get())?;
         let total_balance = *self.balance.get();
 
@@ -46,10 +43,7 @@ impl FungibleTokenState {
         Ok(target_amount)
     }
 
-    pub(crate) async fn transfer(
-        &mut self,
-        amount: Amount,
-    ) -> Result<(), FungibleTokenError> {
+    pub(crate) async fn transfer(&mut self, amount: Amount) -> Result<(), FungibleTokenError> {
         let from_balance = *self.my_balance.get();
 
         ensure!(

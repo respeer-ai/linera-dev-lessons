@@ -6,11 +6,8 @@ use std::sync::Arc;
 
 use async_graphql::{EmptySubscription, Object, Schema};
 use linera_sdk::{
-    graphql::GraphQLMutationRoot,
-    linera_base_types::WithServiceAbi,
-    linera_base_types::Amount,
-    views::View,
-    Service, ServiceRuntime,
+    graphql::GraphQLMutationRoot, linera_base_types::Amount, linera_base_types::WithServiceAbi,
+    views::View, Service, ServiceRuntime,
 };
 
 use fungible_token::Operation;
