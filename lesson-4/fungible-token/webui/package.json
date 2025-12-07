@@ -17,6 +17,7 @@
   "dependencies": {
     "@apollo/client": "^3.9.11",
     "@linera/client": "0.15.7",
+    "@linera/metamask": "^0.15.7",
     "@quasar/extras": "^1.16.4",
     "@vue/apollo-composable": "^4.0.0-beta.8",
     "axios": "^1.2.1",
