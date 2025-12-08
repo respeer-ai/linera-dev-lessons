@@ -90,20 +90,21 @@ const TRANSFER = gql`
   }
 `
 
-const onTransferClick = () => {
+const onTransferClick = async () => {
+  const variables = {
+    to: targetChainId.value,
+    amount: '1.235'
+  }
+  const queryBytes = await lineraWasm.graphql_deserialize_fungible_token_operation(TRANSFER.loc?.source?.body as string, stringify(variables) as string)
    window.linera.request({
     method: 'linera_graphqlMutation',
     params: {
+      applicationId: _applicationId.value,
       publicKey: publicKey.value,
       query: {
         query: TRANSFER.loc?.source?.body,
-        variables: {
-          applicationId: _applicationId.value,
-          chainId: chainId.value,
-          publicKey: publicKey.value,
-          to: '',
-          amount: '1.235'
-        }
+        variables,
+        applicationOperationBytes: queryBytes
       }
     }
   }).then((result) => {
