@@ -13,7 +13,7 @@
     "dev": "quasar dev",
     "build": "quasar build",
     "postinstall": "quasar prepare",
-    "build:wasm": "wasm-pack build --out-dir dist/wasm --target web wasm"
+    "build:wasm": "wasm-pack build --out-dir ../dist/wasm --target web wasm"
   },
   "dependencies": {
     "@apollo/client": "^3.9.11",
@@ -25,13 +25,15 @@
     "graphql": "^16.9.0",
     "graphql-ws": "^5.16.0",
     "hash-wasm": "^4.12.0",
+    "lossless-json": "^4.3.0",
     "pinia": "^3.0.1",
     "quasar": "^2.16.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "vue": "^3.5.22",
     "vue-i18n": "^11.0.0",
-    "vue-router": "^4.0.12"
+    "vue-router": "^4.0.12",
+    "web3": "^4.16.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

@@ -27,7 +27,7 @@ const _totalSupply = ref('0')
 const _applicationId = ref('')
 const defaultChain = ref('')
 const faucetChain = ref('8fd4233c5d03554f87d47a711cf70619727ca3d148353446cab81fb56922c9b7')
-const defaultChainUrl = computed(() => `http://192.168.31.182:8080/chains/${defaultChain.value}/applications/${_applicationId.value}`)
+const defaultChainUrl = computed(() => `http://10.1.24.80:8080/chains/${defaultChain.value}/applications/${_applicationId.value}`)
 
 interface Wallet {
   chain: string
@@ -121,14 +121,14 @@ const initializeWallet = async (onNewBlock: (hash: string) => void) => {
 }
 
 const getChains = async () => {
-  const url = 'http://192.168.31.182:8080'
+  const url = 'http://10.1.24.80:8080'
   const resp = await axios.post(url, {
     'query': 'query { chains { list default } }'
   })
   const data = (resp.data as Record<string, unknown>).data
   defaultChain.value =  ((data as Record<string, string>).chains as unknown as Record<string, string>).default as string
 
-  const wsUrl = 'ws://192.168.31.182:8080/ws'
+  const wsUrl = 'ws://10.1.24.80:8080/ws'
   new Subscription(url, wsUrl, defaultChain.value, (hash: string) => {
     console.log(`NewBlock ${hash} on chain ${defaultChain.value}`)
     metadata(defaultChainUrl.value).then((_metadata) => {
@@ -153,7 +153,7 @@ const myBalance = (wallet: Wallet, done: () => void, error: () => void) => {
 }
 
 const applicationId = async () => {
-  const url = 'http://192.168.31.182:8080'
+  const url = 'http://10.1.24.80:8080'
   const resp = await axios.post(url, {
     'query': `query { applications(chainId: "${defaultChain.value}") { link } }`
   })

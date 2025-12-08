@@ -6,7 +6,7 @@
     <p class='text-h6'>Application: {{ _applicationId }}</p>
     <p class='text-h6'>Total Supply: {{ _totalSupply }}</p>
     <p class='text-h6'>Supply Balance: {{ _balance }}</p>
-    <p class='text-h6'>From: {{ chainId }}@{{ ownerFromPublicKey(publicKey) }} {{ _chainBalance }}</p>
+    <p class='text-h6'>From: {{ chainId }}@{{ publicKey }} {{ _chainBalance }} / {{ memeBalance }}</p>
     <p class='text-h6'>To: {{ targetChainId }}@0xB835fc25421e08E4CBe8adb3eb7D8c8B0A2D777F</p>
     <q-btn @click='onMintClick' class='text-h4'>Mint</q-btn>
     <q-btn @click='onTransferClick' class='text-h4'>Transfer</q-btn>
@@ -16,12 +16,15 @@
 
 <script setup lang="ts">
 import axios from 'axios'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { Subscription } from 'src/subscription'
-import * as linera from '@linera/client'
-import * as metamask from '@linera/metamask'
 import { keccak } from 'hash-wasm'
 import { gql } from '@apollo/client'
+import { Web3 } from 'web3'
+import * as lineraWasm from '../../dist/wasm/linera_wasm'
+import initWasm from '../../dist/wasm/linera_wasm'
+import wasmModuleUrl from '../../dist/wasm/linera_wasm_bg.wasm?url'
+import { stringify } from 'lossless-json'
 
 const _balance = ref('0')
 const _totalSupply = ref('0')
@@ -29,13 +32,15 @@ const _totalSupply = ref('0')
 const _applicationId = ref('')
 const defaultChain = ref('')
 const faucetChain = ref('8fd4233c5d03554f87d47a711cf70619727ca3d148353446cab81fb56922c9b7')
-const defaultChainUrl = computed(() => `http://192.168.31.182:8080/chains/${defaultChain.value}/applications/${_applicationId.value}`)
+const defaultChainUrl = computed(() => `http://10.1.24.80:8080/chains/${defaultChain.value}/applications/${_applicationId.value}`)
 
 const chainId = ref('')
 const publicKey = ref('')
 const _chainBalance = ref('')
 const accountBalance = ref('')
+const memeBalance = ref('')
 const targetChainId = ref('')
+const subscriptionId = ref(undefined as unknown as string)
 
 const metadata = async (url: string) => {
   const resp = await axios.post(url, {
@@ -49,56 +54,55 @@ const metadata = async (url: string) => {
   }
 }
 
-const onMintClick = async () => {
-  const query = {
-    query: `
-      mutation {
-        mint(amount: Amount!)
-      }
-    `
+const MINT = gql`
+  mutation mint($amount: Amount!) {
+    mint(amount: $amount)
   }
+`
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+const onMintClick = async () => {
+  const variables = {
+    amount: '1.235'
+  }
+  const queryBytes = await lineraWasm.graphql_deserialize_fungible_token_operation(MINT.loc?.source?.body as string, stringify(variables) as string)
   window.linera.request({
     method: 'linera_graphqlMutation',
     params: {
+      applicationId: _applicationId.value,
       publicKey: publicKey.value,
       query: {
-        query,
-        variables: {
-          applicationId: _applicationId.value,
-          chainId: chainId.value,
-          publicKey: publicKey.value
-        }
-      }
+        query: MINT.loc?.source?.body,
+        variables,
+        applicationOperationBytes: queryBytes
+      },
+      operationName: 'Mint'
     }
-  }).then((result) => {
-    console.log(result)
+  }).then(() => {
+    myBalance()
   }).catch((e) => {
     console.log(e)
   })
 }
 
-const onTransferClick = async () => {
-  let query = {
-    query: `
-      mutation {
-        transfer(to: "${targetChainId.value}", amount: "1.235")
-      }
-    `
+const TRANSFER = gql`
+  mutation transfer($to: Account!, $amount: Amount!) {
+    transfer(to: $to, amount: $amount)
   }
+`
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-  window.linera.request({
+const onTransferClick = () => {
+   window.linera.request({
     method: 'linera_graphqlMutation',
     params: {
       publicKey: publicKey.value,
       query: {
-        query,
+        query: TRANSFER.loc?.source?.body,
         variables: {
           applicationId: _applicationId.value,
           chainId: chainId.value,
-          publicKey: publicKey.value
+          publicKey: publicKey.value,
+          to: '',
+          amount: '1.235'
         }
       }
     }
@@ -114,14 +118,14 @@ const onRefreshClick = () => {
 }
 
 const getChains = async () => {
-  const url = 'http://192.168.31.182:8080'
+  const url = 'http://10.1.24.80:8080'
   const resp = await axios.post(url, {
     'query': 'query { chains { list default } }'
   })
   const data = (resp.data as Record<string, unknown>).data
   defaultChain.value =  ((data as Record<string, string>).chains as unknown as Record<string, string>).default as string
 
-  const wsUrl = 'ws://192.168.31.182:8080/ws'
+  const wsUrl = 'ws://10.1.24.80:8080/ws'
   new Subscription(url, wsUrl, defaultChain.value, (hash: string) => {
     console.log(`NewBlock ${hash} on chain ${defaultChain.value}`)
     metadata(defaultChainUrl.value).then((_metadata) => {
@@ -132,33 +136,37 @@ const getChains = async () => {
   })
 }
 
+const MY_BALANCE = gql`
+  query myBalance { myBalance }
+`
+
 const myBalance = () => {
   console.log(`Query balance of ${chainId.value}`)
   // TODO: query balance from CheCko
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   window.linera.request({
     method: 'linera_graphqlQuery',
     params: {
+      applicationId: _applicationId.value,
       publicKey: publicKey.value,
       query: {
-        query: BALANCES.loc?.source?.body,
+        query: MY_BALANCE.loc?.source?.body,
         variables: {
-          applicationId: _applicationId.value,
           chainId: chainId.value,
           publicKey: publicKey.value
         }
-      }
+      },
+      operationName: 'myBalance'
     }
-  }).then((result) => {
-    console.log(result)
+  }).then((balance) => {
+    memeBalance.value = balance as string
   }).catch((e) => {
-    console.log(e)
+    console.log('Failed query my balance: ', e)
   })
 }
 
 const applicationId = async () => {
-  const url = 'http://192.168.31.182:8080'
+  const url = 'http://10.1.24.80:8080'
   const resp = await axios.post(url, {
     'query': `query { applications(chainId: "${defaultChain.value}") { link } }`
   })
@@ -168,7 +176,7 @@ const applicationId = async () => {
   return parts[parts.length - 1] as string
 }
 
-export const toBytes = (hex: string) => {
+const toBytes = (hex: string) => {
   if (hex.length % 2 !== 0) {
     throw Error('Must have an even number of hex digits to convert to bytes')
   }
@@ -180,14 +188,14 @@ export const toBytes = (hex: string) => {
   return bytes
 }
 
-export const ownerFromPublicKey = async (publicKey: string) => {
+const ownerFromPublicKey = async (publicKey: string) => {
   const publicKeyBytes = toBytes(publicKey)
   const typeNameBytes = new TextEncoder().encode('Ed25519PublicKey::')
   const bytes = new Uint8Array([...typeNameBytes, ...publicKeyBytes])
   return await keccak(bytes, 256)
 }
 
-export const BALANCES = gql`
+const BALANCES = gql`
   query balances($chainOwners: [ChainOwners!]!) {
     balances(chainOwners: $chainOwners)
   }
@@ -217,11 +225,9 @@ const chainBalance = (balances: Balances, chainId: string) => {
   return balances[chainId]?.chainBalance || '0.'
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getBalances = async () => {
   if (!publicKey.value) return
   const owner = await ownerFromPublicKey(publicKey.value)
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   window.linera.request({
     method: 'linera_graphqlQuery',
     params: {
@@ -247,33 +253,76 @@ const getBalances = async () => {
   })
 }
 
-const getProviderState = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-  window.linera.request({
-    method: 'metamask_getProviderState'
-  }).then(async (result) => {
-    chainId.value = ((result as Record<string, string>).chainId)?.substring(2) as string
-    publicKey.value = ((result as Record<string, string>).accounts)?.[0] as string
-    await getBalances()
-  }).catch((e) => {
-    console.log('metamask_getProviderState', e)
+const getProviderState = async () => {
+  return new Promise((resolve, reject) => {
+    window.linera.request({
+      method: 'metamask_getProviderState'
+    }).then(async (result) => {
+      chainId.value = ((result as Record<string, string>).chainId)?.substring(2) as string
+      publicKey.value = ((result as Record<string, string>).accounts)?.[0] as string
+      await getBalances()
+      resolve(undefined)
+    }).catch((e) => {
+      console.log('metamask_getProviderState', e)
+      reject(new Error(e))
+    })
   })
+}
+
+const connectWallet = async () => {
+  try {
+    console.log('Requesting accounts: ', window.linera)
+    const web3 = new Web3(window.linera)
+    const accounts = await web3.eth.requestAccounts()
+    console.log('Requested accounts: ', accounts)
+  } catch (e) {
+    console.log('Failed connect wallet: ', e)
+  }
+}
+
+const subscriptionHandler = (msg: unknown) => {
+  const _msg = msg as Record<string, unknown>
+  const data = _msg.data as Record<string, Record<string, Record<string, Record<string, Record<string, unknown>>>>>
+  if (data?.result?.notifications?.reason?.NewBlock) {
+    myBalance()
+  }
 }
 
 onMounted(async () => {
   await getChains()
   _applicationId.value = await applicationId()
 
-  getProviderState()
+  await initWasm(await fetch(wasmModuleUrl))
+
+  await connectWallet()
+  await getProviderState()
 
   const _metadata = await metadata(defaultChainUrl.value)
 
   _balance.value = _metadata.balance
   _totalSupply.value = _metadata.totalSupply
 
-  await linera.initialize()
-
   void myBalance()
+
+  if (subscriptionId.value) return
+  window.linera?.request({
+    method: 'linera_subscribe'
+  }).then((_subscriptionId) => {
+    subscriptionId.value = _subscriptionId as string
+    window.linera.on('message', subscriptionHandler)
+  }).catch((e) => {
+    console.log('Fail subscribe', e)
+  })
 })
+
+onUnmounted(() => {
+  if (!subscriptionId.value) return
+  void window.linera?.request({
+    method: 'linera_unsubscribe',
+    params: [subscriptionId.value]
+  })
+  subscriptionId.value = undefined as unknown as string
+})
+
 
 </script>
