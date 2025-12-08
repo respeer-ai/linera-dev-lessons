@@ -2,6 +2,10 @@
 name = "fungible-token"
 version = "0.1.0"
 edition = "2021"
+exclude = [
+  "webui/*",
+  "webui/wasm/*",
+]
 
 [dependencies]
 async-graphql = { version = "=7.0.17", default-features = false }

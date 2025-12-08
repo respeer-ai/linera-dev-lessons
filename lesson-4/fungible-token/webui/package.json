@@ -12,7 +12,8 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
     "build": "quasar build",
-    "postinstall": "quasar prepare"
+    "postinstall": "quasar prepare",
+    "build:wasm": "wasm-pack build --out-dir dist/wasm --target web wasm"
   },
   "dependencies": {
     "@apollo/client": "^3.9.11",
@@ -23,6 +24,7 @@
     "axios": "^1.2.1",
     "graphql": "^16.9.0",
     "graphql-ws": "^5.16.0",
+    "hash-wasm": "^4.12.0",
     "pinia": "^3.0.1",
     "quasar": "^2.16.0",
     "react": "^19.2.0",
